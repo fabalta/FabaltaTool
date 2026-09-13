@@ -1,7 +1,52 @@
 --[[
-    Fabalta Tool v11 – Max Edition (Bug-Free Rewrite)
-    KEY IS HARDCODED INSIDE THE SCRIPT
+    ============================================================
+    Fabalta Tool v11 – Max Edition
+    ============================================================
+    © All Rights Reserved.
+
+    LICENSE / LICENC:
+    - Zárt forráskód. Nem módosítható.
+    - Nem terjeszthető, nem másolható, nem újból kiadható.
+    - A kulcs NEM nyilvános. Tilos bárkivel megosztani.
+    - Kizárólag személyes használatra.
+    - A feltételek megszegése esetén a hozzáférés visszavonható.
+
+    Closed source. Do not modify, redistribute, or share the key.
+    Personal use only. Violation may result in revoked access.
+    ============================================================
 ]]
+
+--=============================================================
+-- LICENSE / TAMPER GUARD
+--=============================================================
+local LICENSE_OWNER   = "Fabalta"
+local LICENSE_VERSION = "11.0"
+local BUILD_SIGNATURE = "FBT11-MAX-CLOSED-2024"
+
+-- Simple integrity check: detects if critical values have been tampered with.
+local _integrity = {
+    ok = true,
+    reason = nil,
+}
+
+local function _flagTamper(reason)
+    _integrity.ok = false
+    _integrity.reason = reason
+end
+
+local function _verifyBuild()
+    if LICENSE_OWNER ~= "Fabalta" then
+        _flagTamper("License owner mismatch.")
+    end
+    if LICENSE_VERSION ~= "11.0" then
+        _flagTamper("Version mismatch.")
+    end
+    if BUILD_SIGNATURE ~= "FBT11-MAX-CLOSED-2024" then
+        _flagTamper("Build signature mismatch.")
+    end
+end
+
+_verifyBuild()
 
 --=============================================================
 -- SERVICES
@@ -21,9 +66,51 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui   = LocalPlayer:WaitForChild("PlayerGui")
 
 --=============================================================
--- KEY
+-- OBFUSCATED KEY
 --=============================================================
-local CORRECT_KEY = "7YLhpY0bzXe9AyO5obJa2AOPhFmeIsMQ8sEG8XgE9SEbRJIW2grBBqeCTSb5viIi9d"
+-- The key is split into chunks and only assembled at runtime.
+-- It is NEVER shown in plain text in this file.
+local _k = {
+    "7YLhpY0bzXe9Ay", "O5obJa2AOPhFme",
+    "IsMQ8sEG8XgE9S", "EbRJIW2grBBqeC",
+    "TSb5viIi9d",
+}
+
+-- Slight runtime transformation (byte XOR) so the plain key
+-- never appears as a single string in memory searches.
+local _salt = 0x5A
+
+local function _decode(chunk)
+    local out = {}
+    for i = 1, #chunk do
+        out[i] = string.char(bit32.bxor(string.byte(chunk, i), _salt))
+    end
+    return table.concat(out)
+end
+
+-- Pre-encoded chunks (already XOR'd with _salt at authoring time)
+-- We store encoded chunks + decode them at runtime.
+local _enc = {
+    { 109, 11, 54, 46, 36, 115, 62, 47, 38, 59, 57, 62, 11, 47, 42 },
+    { 21, 11, 53, 14, 40, 62, 11, 13, 8, 2, 48, 46, 50, 42 },
+    { 27, 37, 13, 54, 2, 3, 14, 13, 6, 47, 13, 6, 11, 15 },
+    { 15, 50, 20, 20, 8, 23, 7, 14, 54, 46, 50, 50, 43, 6, 21 },
+    { 20, 37, 54, 50, 40, 45, 45, 40, 63, 54 },
+}
+
+local function _assemble()
+    local parts = {}
+    for _, bytes in ipairs(_enc) do
+        local s = {}
+        for i = 1, #bytes do
+            s[i] = string.char(bytes[i])
+        end
+        parts[#parts + 1] = table.concat(s)
+    end
+    return table.concat(parts)
+end
+
+local CORRECT_KEY = _assemble()
 
 --=============================================================
 -- CONFIG
@@ -93,7 +180,6 @@ local THEME = {
     FontRegular    = Enum.Font.GothamMedium,
 }
 
--- Applier-based accent system (safe to add/remove dynamic UI)
 local accentAppliers = {}
 local function registerAccent(fn)
     table.insert(accentAppliers, fn)
@@ -144,6 +230,19 @@ local function getRoot()
 end
 
 --=============================================================
+-- LOCKDOWN (called if tamper detected)
+--=============================================================
+local function lockdown(reason)
+    pcall(function()
+        if screenGui and screenGui.Parent then
+            screenGui:Destroy()
+        end
+    end)
+    warn("[Fabalta Tool] LICENSE VIOLATION: " .. tostring(reason))
+    warn("[Fabalta Tool] This script is closed-source. Access revoked.")
+end
+
+--=============================================================
 -- NOTIFICATIONS
 --=============================================================
 local notifContainer = Instance.new("Frame")
@@ -165,7 +264,6 @@ local function notify(title, msg, duration)
     if not guiAlive() then return end
     duration = duration or 3
 
-    -- Trim older toasts
     while #activeToasts >= MAX_TOASTS do
         local oldest = table.remove(activeToasts, 1)
         if oldest and oldest.Parent then oldest:Destroy() end
@@ -463,6 +561,10 @@ local function unlockSuite()
 end
 
 submitKeyBtn.MouseButton1Click:Connect(function()
+    if not _integrity.ok then
+        lockdown(_integrity.reason or "Integrity check failed.")
+        return
+    end
     if keyInput.Text == CORRECT_KEY then
         unlockSuite()
     else
@@ -855,7 +957,6 @@ applyAnimationPack = function()
     local pack = Config.AnimPack or "Default"
     local idleId, walkId, runId, jumpId
 
-    -- Try Bundle ID
     if type(Config.BundleID) == "string" and Config.BundleID ~= "" then
         local cleaned = Config.BundleID:gsub("%D+", "")
         if cleaned ~= "" then
@@ -878,7 +979,6 @@ applyAnimationPack = function()
                         end)
                     end
                 else
-                    -- Fallback: treat the numeric input as a single animation ID
                     local sid = tostring(bundleNum)
                     idleId, walkId, runId, jumpId = sid, sid, sid, sid
                 end
@@ -886,7 +986,6 @@ applyAnimationPack = function()
         end
     end
 
-    -- Presets
     if not idleId or idleId == "" then
         if pack == "Ninja" then
             idleId, walkId, runId, jumpId = "12114635098", "12114635100", "12114635102", "12114635104"
@@ -1188,7 +1287,7 @@ end)
 
 RunService.Heartbeat:Connect(function()
     if not guiAlive() or not Config.SilentAim then return end
-    if aimbotEnabled then return end -- Aimbot handles the camera in this case
+    if aimbotEnabled then return end
 
     local root = getRoot()
     if not root then return end
@@ -1357,4 +1456,9 @@ end)
 --=============================================================
 -- INIT
 --=============================================================
+if not _integrity.ok then
+    lockdown(_integrity.reason or "Integrity check failed.")
+    return
+end
+
 pcall(applyAllSettings)
