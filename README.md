@@ -1,12 +1,27 @@
 # Fabalta Tool
 
 > Nem hivatalos Roblox segédeszköz. Executor szükséges.
+> **Zárt forráskód – a script nem módosítható és nem terjeszthető.**
 
 ---
 
 ## 📖 Leírás
 
-A **Fabalta Tool** egy könnyű, magyar nyelvű Roblox segédeszköz, amely számos hasznos funkciót kínál egy letisztult, drag & drop felületen. A script kulcsvédett, a kulcs a fájlon belül a `CORRECT_KEY` változóban található.
+A **Fabalta Tool** egy könnyű, magyar nyelvű Roblox segédeszköz, amely számos hasznos funkciót kínál egy letisztult, drag & drop felületen.
+
+A script **kulcsvédett**, és a kulcs **nem nyilvános** – kizárólag a fejlesztő adja ki jogosult felhasználóknak. A kulcs a fájlon belül van tárolva, de **senkivel nem osztható meg**.
+
+---
+
+## 🔒 Fontos tudnivalók
+
+- ❌ A script **nem módosítható**.
+- ❌ A script **nem terjeszthető** és **nem feltölthető** más oldalakra.
+- ❌ A **kulcs nem nyilvános**, és tilos bárkivel megosztani.
+- ❌ A script **újraeladása tilos**.
+- ✅ Kizárólag **személyes használatra** engedélyezett.
+
+Aki megszegi ezeket a feltételeket, annak a hozzáférése **véglegesen visszavonható**.
 
 ---
 
@@ -23,16 +38,18 @@ A **Fabalta Tool** egy könnyű, magyar nyelvű Roblox segédeszköz, amely szá
 
 ---
 
-## 🚀 Telepítés
+## 🚀 Használat
 
-1. Nyisd meg a `FabaltaTool.lua` fájlt egy Roblox executorban.
-2. Futtasd a scriptet.
-3. Add meg a kulcsot a felugró ablakban.
+1. Szerezd meg a **kulcsot** a fejlesztőtől.
+2. Nyisd meg a scriptet egy Roblox executorban.
+3. Futtasd, majd add meg a kulcsot a felugró ablakban.
 4. Kész – a menü megnyílik.
+
+> A kulcs nélkül a script **nem indítható el**.
 
 ---
 
-## 🎮 Használat
+## 🎮 Vezérlés
 
 | Bemenet | Funkció |
 |---------|---------|
@@ -62,4 +79,5 @@ A beállítások automatikusan mentődnek a `FabaltaTool_Max.json` fájlba, ha a
 
 ## 📄 Licenc
 
-MIT License – szabadon módosítható és terjeszthető.
+**Minden jog fenntartva.**
+A script zárt forráskódú. Másolás, módosítás, terjesztés vagy újraeladás **szigorúan tilos** a szerző írásos engedélye nélkül.
